@@ -18,6 +18,9 @@
 *.dll
 *.so
 *.so.*
+
+# Dependency files
+*.d
 *.dylib
 
 # Executables
