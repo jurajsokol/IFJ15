@@ -13,17 +13,31 @@
 typedef enum 
 {
 	S_START,	// 00 pociatocny stav
-	S_POINT,	// .
-	S_MUL,		// *
-	S_DIV,		// /
-	S_ADD,		// +
-	S_SUB,		// -
-	S_LOW,		// <
-	S_GRE,		// >
-	S_LOWEQ,	// <=
-	S_GREEQ,	// >=
-	S_EQ,		// ==
-	S_NEQ,		// !=
+
+	//tokeny
+	S_POINT,	// 01 .
+	S_COLON,	// 02 :
+	S_SCOL,		// 03 ;
+	S_MUL,		// 04 *
+	S_DIV,		// 05 /
+	S_ADD,		// 06 +
+	S_SUB,		// 07 -
+	S_LOW,		// 08 <
+	S_GRE,		// 09 >
+	S_LOWEQ,	// 10 <=
+	S_GREEQ,	// 11 >=
+	S_EQ,		// 12 =
+	S_EQ2,		// 13 ==
+	S_NEQ,		// 14 !=
+	S_EXCL,		// 15 !
+	S_LRB,		// 16 (
+	S_RRB,		// 17 )
+	S_LSB,		// 18 [
+	S_RSB,		// 19 ]
+	S_LCB,		// 20 {
+	S_RCB,		// 21 }
+	S_QUOT,		// 22 "
+	S_EOF,		// 23 koniec suboru
 
 	// klucove slova
 	S_AUTO,		// auto
@@ -36,6 +50,13 @@ typedef enum
 	S_INT,		// int
 	S_RET,		// return
 	S_STR,		// string
+
+	//pomocne stavy
+	S_ID,		// identifikator - ak zacina pismenom alebo _
+	S_NUM,		// cislo
+	S_EXP,		//exponent - e, E
+	S_ESC,		// escape sekvencia
+	S_ZERO,		// prebytocne pociatocne 0
 
 } tState;
 
