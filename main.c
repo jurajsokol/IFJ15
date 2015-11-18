@@ -13,10 +13,14 @@ int main(int argc, char *argv[]){
     	fprintf(stderr, "Open file error!\n");
     	return 1;
   	}
-
-	printf("%s - %d\n", Token(&tokenType, fp), tokenType);
+	while(1)
+	{
+		char *token = Token(&tokenType, fp);
+		if(tokenType == S_EOF)
+			break;
+	    printf("%s - %d\n", token, tokenType);
+	}
 	fclose(fp);
-
 
 	return 0;
 }
