@@ -57,6 +57,9 @@ typedef enum
 	S_EXP,		//exponent - e, E
 	S_ESC,		// escape sekvencia
 	S_ZERO,		// prebytocne pociatocne 0
+	S_RCOM,		// riadkovy komentar
+	S_BCOM,		// blokovy komentar
+	S_COMEND,	// mozny koniec blokoveho komentara
 
 } tState;
 
