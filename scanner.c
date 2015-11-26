@@ -76,6 +76,12 @@ char *Token(tState *retState, FILE *fp)
 					*retState = S_LOWEQ;
 					return tok;
 				}
+				else if(znak == '<')
+				{
+					TokAddChar(tok, &tokLen, znak);
+					*retState = S_WRITE;
+					return tok;
+				}
 				else
 				{
 					ungetc(znak, fp);
@@ -89,6 +95,12 @@ char *Token(tState *retState, FILE *fp)
 				{
 					TokAddChar(tok, &tokLen, znak);
 					*retState = S_GREEQ;
+					return tok;
+				}
+				else if(znak == '>')
+				{
+					TokAddChar(tok, &tokLen, znak);
+					*retState = S_LOAD;
 					return tok;
 				}
 				else
@@ -173,6 +185,153 @@ char *Token(tState *retState, FILE *fp)
 				}
 				else
 					state = S_BCOM;
+			break;
+
+			case S_ID:
+				if(isalnum(znak) || znak == '_')
+					TokAddChar(tok, &tokLen, znak);
+				else
+				{
+					ungetc(znak, fp);
+
+					if(strcmp(tok, "auto") == 0)
+						*retState = S_AUTO;
+
+					else if(strcmp(tok, "cin") == 0)
+						*retState = S_CIN;
+
+					else if(strcmp(tok, "count") == 0)
+						*retState = S_COUNT;
+
+					else if(strcmp(tok, "double") == 0)
+						*retState = S_DOUB;
+
+					else if(strcmp(tok, "else") == 0)
+						*retState = S_ELSE;
+
+					else if(strcmp(tok, "for") == 0)
+						*retState = S_FOR;
+
+					else if(strcmp(tok, "if") == 0)
+						*retState = S_IF;
+
+					else if(strcmp(tok, "int") == 0)
+						*retState = S_INT;
+
+					else if(strcmp(tok, "return") == 0)
+						*retState = S_RET;
+
+					else if(strcmp(tok, "string") == 0)
+						*retState = S_STR;
+
+					else 
+						*retState = S_ID;
+
+					return tok;
+				}
+			break;
+
+			case S_QUOT:
+				if(znak == '"')
+				{
+					TokAddChar(tok, &tokLen, znak);
+					*retState = S_RETAZ;
+					return tok;
+				}
+				else if(znak == '\\')
+				{
+					state = S_ESC;
+					TokAddChar(tok, &tokLen, znak);
+				}
+				else
+					TokAddChar(tok, &tokLen, znak);
+			break;
+
+			case S_ESC:
+				TokAddChar(tok, &tokLen, znak);
+				state = S_QUOT;
+			break;
+
+			case S_NUM:
+				if(znak == '.')
+				{
+					state = S_FLOAT;
+					TokAddChar(tok, &tokLen, znak);
+				}
+				else if(isdigit(znak))
+					TokAddChar(tok, &tokLen, znak);
+				// else if(znak == 'e' || znak == 'E')
+				// {
+				// 	TokAddChar(tok, &tokLen, znak);
+				// 	state = S_EXP;
+				// }
+				else
+				{
+					ungetc(znak, fp);
+					*retState = S_NUM;
+					return tok;
+				}
+			break;
+
+/*			case S_EXP:
+				if(znak == '-' || znak == '+')
+				{
+					TokAddChar(tok, &tokLen, znak);
+				}
+				else if(isdigit(znak))
+				{
+					TokAddChar(tok, &tokLen, znak);
+					state = S_NUM;
+				}
+			break;
+*/
+			case S_FLOAT:
+				if(isdigit(znak))
+					TokAddChar(tok, &tokLen, znak);
+				// else if(znak == 'e' || znak == 'E')
+				// {
+				// 	TokAddChar(tok, &tokLen, znak);
+				// 	state = S_EXP2;
+				// }
+				else
+				{
+					ungetc(znak, fp);
+					*retState = S_FLOAT;
+					return tok;
+				}
+			break;
+
+			case S_COLON:
+				if(znak == ':')
+				{
+					TokAddChar(tok, &tokLen, znak);
+					*retState = S_SCOPE;
+					return tok;
+				}
+				else
+				{
+					ungetc(znak, fp);
+					*retState = S_COLON;
+					return tok;
+				}
+			break;
+
+			case S_POINT:
+			case S_SCOL:
+			case S_MUL:
+			case S_ADD:
+			case S_SUB:
+			case S_LRB:
+			case S_RRB:
+			case S_LSB:
+			case S_RSB:
+			case S_LCB:
+			case S_RCB:
+			{
+				ungetc(znak, fp);
+				*retState = state;
+				return tok;
+			}
 			break;
 
 			default:	//pre ucely testovania ignorujem neimplementovane tokeny - case
