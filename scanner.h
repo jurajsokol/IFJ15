@@ -40,26 +40,33 @@ typedef enum
 	S_EOF,		// 23 koniec suboru
 
 	// klucove slova
-	S_AUTO,		// auto
-	S_CIN,		// cin
-	S_COUNT,	// count
-	S_DOUB,		// double
-	S_ELSE,		// else
-	S_FOR,		// for
-	S_IF,		// if
-	S_INT,		// int
-	S_RET,		// return
-	S_STR,		// string
+	S_AUTO,		// 24 auto
+	S_CIN,		// 25 cin
+	S_COUNT,	// 26 count
+	S_DOUB,		// 27 double
+	S_ELSE,		// 28 else
+	S_FOR,		// 29 for
+	S_IF,		// 30 if
+	S_INT,		// 31 int
+	S_RET,		// 32 return
+	S_STR,		// 33 string
 
 	//pomocne stavy
-	S_ID,		// identifikator - ak zacina pismenom alebo _
-	S_NUM,		// cislo
-	S_EXP,		//exponent - e, E
-	S_ESC,		// escape sekvencia
-	S_ZERO,		// prebytocne pociatocne 0
-	S_RCOM,		// riadkovy komentar
-	S_BCOM,		// blokovy komentar
-	S_COMEND,	// mozny koniec blokoveho komentara
+	S_ID,		// 34 identifikator - ak zacina pismenom alebo _
+	S_NUM,		// 35 cislo
+	S_EXP,		// 36 exponent - e, E
+	S_ESC,		// 37 escape sekvencia
+	S_ZERO,		// 38 prebytocne pociatocne 0
+	S_FLOAT,	// 39 desatinne cislo
+	S_RETAZ,	// 40 retazec
+	S_RCOM,		// 41 riadkovy komentar
+	S_BCOM,		// 42 blokovy komentar
+	S_COMEND,	// 43 mozny koniec blokoveho komentara
+	S_LOAD,		// 44 nacitanie hodnoty zo vstupu >>
+	S_WRITE,	// 45 vypis hodnot <<
+	S_SCOPE,	// 46 ::
+	S_PLUS,		// 47 unarny +
+	S_MINUS,	// 48 unarny -
 
 } tState;
 
