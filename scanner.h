@@ -37,29 +37,41 @@ typedef enum
 	S_LCB,		// 20 {
 	S_RCB,		// 21 }
 	S_QUOT,		// 22 "
-	S_EOF,		// 23 koniec suboru
+	S_HASH,		// 23 #
+	S_COMA,		// 24 ,
+	S_EOF,		// 25 koniec suboru
 
 	// klucove slova
-	S_AUTO,		// auto
-	S_CIN,		// cin
-	S_COUNT,	// count
-	S_DOUB,		// double
-	S_ELSE,		// else
-	S_FOR,		// for
-	S_IF,		// if
-	S_INT,		// int
-	S_RET,		// return
-	S_STR,		// string
+	S_AUTO,		// 26 auto
+	S_CIN,		// 27 cin
+	S_COUNT,	// 28 count
+	S_DOUB,		// 29 double
+	S_ELSE,		// 30 else
+	S_FOR,		// 31 for
+	S_IF,		// 32 if
+	S_INT,		// 33 int
+	S_RET,		// 34 return
+	S_STR,		// 35 string
 
 	//pomocne stavy
-	S_ID,		// identifikator - ak zacina pismenom alebo _
-	S_NUM,		// cislo
-	S_EXP,		//exponent - e, E
-	S_ESC,		// escape sekvencia
-	S_ZERO,		// prebytocne pociatocne 0
-	S_RCOM,		// riadkovy komentar
-	S_BCOM,		// blokovy komentar
-	S_COMEND,	// mozny koniec blokoveho komentara
+	S_ID,		// 36 identifikator - ak zacina pismenom alebo _
+	S_NUM,		// 37 cislo
+	S_EXP,		// 38 exponent - e, E
+	S_ESC,		// 39 escape sekvencia
+	S_ZERO,		// 40 prebytocne pociatocne 0
+	S_FLOAT,	// 41 desatinne cislo
+	S_RETAZ,	// 42 retazec
+	S_RCOM,		// 43 riadkovy komentar
+	S_BCOM,		// 44 blokovy komentar
+	S_COMEND,	// 45 mozny koniec blokoveho komentara
+	S_LOAD,		// 46 nacitanie hodnoty zo vstupu >>
+	S_WRITE,	// 47 vypis hodnot <<
+	S_SCOPE,	// 48 ::
+	S_PLUS,		// 49 rozsirenie - unarny +
+	S_MINUS,	// 50 rozsirenie - unarny -
+	S_REAL_PART, //51 
+	S_FLOATEXP,	// 52
+	S_EXP_ZERO,	// 53 nula v exponente
 
 } tState;
 
