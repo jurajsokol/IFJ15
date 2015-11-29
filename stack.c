@@ -3,38 +3,41 @@
 */
 
 #include "stack.h"
+#include "libraries.h"
 
 // Inicializácia zásobníku
 void Init(STACK *S)
 {
+	S->data = (int*) malloc(sizeof(int));
 	S->vrchol = 0;
 }
 
 // Vloží hodnotu na zásobník
 void Push(STACK *S, char z){
-
-  if (S->vrchol==100)
+	S->vrchol++;
+	S->data = (int*) realloc(S->data, sizeof(int) * (S->vrchol + 1));
+  if (S->data == NULL)
     printf("Chyba: Došlo k pretečeniu zásobníku!\n");
   else {
-		S->vrchol++;
 		S->data[S->vrchol]=z;
 	}
 }
 
 // Odstráni znak z vrcholu zásobníku a vráti jeho hodnotu
-char TopPop(STACK *S){
+int TopPop(STACK *S){
 
-	if (S->vrchol==0)  {
+	if (S->data==NULL)  {
 		printf("Chyba: Došlo k podtečení zásobníku s ukazateli!\n");
 		return(-2);
 	}
 	else {
 		return (S->data[S->vrchol--]);
+		S->data = (int*) realloc(S->data, sizeof(int) * (S->vrchol + 1));
 	}
 }
 
 // vráti znak z vrcholu zásobníku
-char Top(STACK *S){
+int Top(STACK *S){
 
 	if (S->vrchol==0)  {
 		printf("Chyba: Došlo k podtečení zásobníku s ukazateli!\n");
@@ -45,14 +48,26 @@ char Top(STACK *S){
 	}
 }
 
+// vráti druhý znak z vrcholu zásobníku
+int TopSec(STACK *S){
+	if (S->vrchol==0)  {
+		printf("Chyba: Došlo k podtečení zásobníku s ukazateli!\n");
+		return(-2);
+	}
+	else {
+		return (S->data[S->vrchol - 1]);
+	}
+}
+
 // Odstráni znak z vrcholu zásobníku
 void Pop(STACK *S){
 
-	if (S->vrchol==0)  {
+	if (S->data==NULL)  {
 		printf("Chyba: Došlo k podtečení zásobníku s ukazateli!\n");
 	}
 	else {
 		S->vrchol--;
+		S->data = (int*) realloc(S->data, sizeof(int) * (S->vrchol + 1));
 	}
 }
 
@@ -76,4 +91,8 @@ void PrintS(STACK *S){
 		printf(" %d |", S->data[i]);
 	}
 	printf("\n");
+}
+
+void FreeS(STACK *S){
+	free(S->data);
 }
