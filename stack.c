@@ -1,5 +1,8 @@
 /*
-** Implementácia zásobníku
+* Projekt: Interpret jazyka IFJ15
+* Subor: stack.h
+* Popis: Implementácia dátovej štruktúry zásobník
+* Autor: Juraj Sokol (xsokol08)
 */
 
 #include "stack.h"
