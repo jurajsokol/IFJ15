@@ -14,30 +14,17 @@
 ** pomocná funkcia pre hľadanie v precedenčnej tabuľke a v pravidlách
 */
 int dekoder(int tType){
-	static int typ = 0;
-	if(tType == -1){
-		return typ;
-	}
-	if(tType == 3){ // stav ;
+	if(tType == 3 || tType == 20){ // stav ; a {
 		return 13;
 	}
-	if(tType == E){ // neterminál, nevyhľadáva sa v tabuľke
-		return typ;
-	}
-	if(tType == 16){ // neterminál, nevyhľadáva sa v tabuľke
-		return 10;
-	}
 	if(tType < 12){ // znaky *, /, +, -, <, >, <=, >=
-		typ = tType - 4;
-		return typ;
+		return tType - 4;
 	}
 	if(tType < 15){ // zanky ==, !=
-		typ = tType - 5;
-		return typ;
+		return tType - 5;
 	}
 	if(tType < 18){
-		typ = tType - 6;
-		return typ; // znaky ( a )
+		return tType - 6; // znaky ( a )
 	}
 	if(tType == 37){ // identifikátor
 		return 12;
@@ -66,10 +53,9 @@ char precedencna_tabulka(int t_x, int t_y){
 														 {'<','<','<','<','<','<','<','<','<','<','<','=','<','X'}, // (
 														 {'>','>','>','>','>','>','<','>','<','>','X','>','X','>'}, // )
 														 {'>','>','>','>','>','>','<','>','<','>','X','>','X','>'}, // i
-														 {'<','<','<','<','<','<','<','<','<','<','<','X','<','X'}, // $
+														 {'<','<','<','<','<','<','<','<','<','<','<','X','<','U'}, // $
 													};
 
-	printf("Precedenčná tabuľka: %d, %d, %c\n", dekoder(t_x), dekoder(t_y), tabulka[dekoder(t_x)][dekoder(t_y)]);
 	return tabulka[dekoder(t_x)][dekoder(t_y)];
 }
 
@@ -77,101 +63,101 @@ char precedencna_tabulka(int t_x, int t_y){
 ** Hlavná funkcia syntaktickej analýzy, simuluje vytváranie derivačného stromu
 */
 int analyza(FILE *fp, char *vystup){
-	int pravidla[13][4] = { // čísla sú z enum štruktúry v scanner.h
-										{E, 4, E, -1}, // *
-										{E, 5, E, -1}, // /
-										{E, 6, E, -1}, // +
-										{E, 7, E, -1}, // -
-										{E, 8, E, -1}, // <
-										{E, 9, E, -1}, // >
-										{E, 10, E, -1}, // <=
-										{E, 11, E, -1}, // >=
-										{E, 13, E, -1}, // ==
-										{E, 14, E, -1}, // !=
-										{17, E, 16, -1}, // zátvorky ()
-										{17, E, 16, -1}, // -- II --
-										{37, -1}, // identifikátor
+	char pravidla[14][5] = { // čísla sú z enum štruktúry v scanner.h
+										{E, 4, E, -1, '\0'}, // *
+										{E, 5, E, -1, '\0'}, // /
+										{E, 6, E, -1, '\0'}, // +
+										{E, 7, E, -1, '\0'}, // -
+										{E, 8, E, -1, '\0'}, // <
+										{E, 9, E, -1, '\0'}, // >
+										{E, 10, E, -1, '\0'}, // <=
+										{E, 11, E, -1, '\0'}, // >=
+										{E, 13, E, -1, '\0'}, // ==
+										{E, 14, E, -1, '\0'}, // !=
+										{17, E, 16, -1, '\0'}, // zátvorky ()
+										{E, 7, -1, '\0'}, // záporné číslo
+										{37, -1, '\0'}, // identifikátor
 									}; // 60 je $
-
+	char vyraz[5]; // výraz sa bude porovnávať s tabuľkou
 	STACK zasobnik;
 	char *vstup;
 	char znak; // znak zo vstupu a zo zásobníku
 	tState tokenType; // číslo stavu
-	int y = 0; // pomocná premenná pre tabuľku pravidiel
+	int i;
 
-	Init(&zasobnik); // inicializácia zásobniku
+	InitS(&zasobnik); // inicializácia zásobniku
 
-	Push(&zasobnik, DOLAR); //na vrcholu zásobniku musí byť $
-	vstup = Token(&tokenType, fp); // načíta prvý znek zo vstupu
+	PushS(&zasobnik, DOLAR); //na vrcholu zásobniku musí byť $
+	vstup = Token(&tokenType, fp); // načíta prvý znak zo vstupu
 
 	do{
-		znak = Top(&zasobnik);
+		znak = TopS(&zasobnik);
 		if(znak == E){ //nemôže porovnávať s neterminálom, preto vyberie zo zásobníku druhý znak
-			znak = TopSec(&zasobnik);
+			znak = TopSecS(&zasobnik);
 		}
 
-		/* pomocné ladiace funkcie */
+		/* pomocné ladiace funkcie
 		PrintS(&zasobnik);
-		printf("znak = %d\n", znak);
+		printf("S znak = %d\n", znak);
 		printf("vstup = %d\n", tokenType);
-		/* *********************** */
+		** *********************** */
 
 		switch(precedencna_tabulka(znak, tokenType)){
+
 			case '=':
-				Push(&zasobnik, tokenType);
+				PushS(&zasobnik, tokenType);
+				free(vstup);
+				vstup = Token(&tokenType, fp);
 				continue;
+
 			case '<':
-				if(Top(&zasobnik) == E){
-					Pop(&zasobnik);
-					Push(&zasobnik, -1);
-					Push(&zasobnik, E);
-					Push(&zasobnik, tokenType);
+				if(TopS(&zasobnik) == E){
+					PopS(&zasobnik);
+					PushS(&zasobnik, -1);
+					PushS(&zasobnik, E);
+					PushS(&zasobnik, tokenType);
 				}
 				else{
-					Push(&zasobnik, -1); // -1 je <
-					Push(&zasobnik, tokenType);
+					PushS(&zasobnik, -1); // -1 je <
+					PushS(&zasobnik, tokenType);
 				}
 				free(vstup);
 				vstup = Token(&tokenType, fp);
 				continue;
+
 			case '>':
-				znak = TopPop(&zasobnik);
-				do{ // kontroluje zásobník s pravidlami
-					printf("znak %d\n", znak);
-					printf("tabulka %d, %d\n", pravidla[dekoder(znak)][y], dekoder(znak));
-					if(znak == pravidla[dekoder(znak)][y]){  // znak sa rovná s časťou niektorého pravidla
-						y++;
-						znak = TopPop(&zasobnik); // vyberie zo zásobníku ďalší znak
-							PrintS(&zasobnik);
-					}
-					else{ // ERROR
-						PrintS(&zasobnik);
-						printf("znak = %d\n", znak);
+
+				/* Vyberie zo zásobníku znaky a vloží do premennej výraz */
+				i = 0;
+				do{
+					vyraz[i] = TopPopS(&zasobnik);
+					i++;
+				}while(vyraz[i - 1] != -1);
+				vyraz[i] = '\0';
+
+				/* Porovnáva výraz s pravidlami */
+				for(i = 0; i<=14; i++){
+					if(i == 14){ // nenašla sa zhoda
+						FreeS(&zasobnik);
 						return -2;
 					}
-				}while(znak != -1);
-
-				if(Top(&zasobnik) == DOLAR){ // úspech
-					switch (tokenType) { // ak je za výrazom ; alebo ), tak je správny
-						case 3: // ;
-							FreeS(&zasobnik);
-							vystup = vstup;
-							return 1;
-						default:	// ukončí slučku
-							znak = -1;
+					if(strcmp(pravidla[i], vyraz) == 0){ // našla sa zhoda
+						break;
 					}
 				}
 
-					Push(&zasobnik, E); // Pushne neterminál na zásobník
-					y = 0;
+					PushS(&zasobnik, E); // Pushne neterminál na zásobník
 					continue;
 
+			case 'U': // výraz je správny
+				FreeS(&zasobnik);
+				return 1;
 			case 'X': // chyba
-				PrintS(&zasobnik);
+				FreeS(&zasobnik);
 				return -5;
 			}
+		}while(1);
 
-	}while(Size(&zasobnik)); // opakuje, pokiaľ nebude na vrcholu zásobníku $
-
+	FreeS(&zasobnik);
 	return 0;
 }

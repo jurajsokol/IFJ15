@@ -9,4 +9,3 @@
 #define DOLAR 61
 
 int analyza();
-char precedencna_tabulka(int t_x,int t_y);
