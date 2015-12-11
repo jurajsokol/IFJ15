@@ -14,8 +14,11 @@
 ** pomocná funkcia pre hľadanie v precedenčnej tabuľke a v pravidlách
 */
 int dekoder(int tType){
-	if(tType == 3 || tType == 20){ // stav ; a {
+	if(tType == 3 || tType == 20){ // stav ;, {
 		return 13;
+	}
+	if(tType == 24){ // ,
+		return 14;
 	}
 	if(tType < 12){ // znaky *, /, +, -, <, >, <=, >=
 		return tType - 4;
@@ -26,7 +29,7 @@ int dekoder(int tType){
 	if(tType < 18){
 		return tType - 6; // znaky ( a )
 	}
-	if(tType == 37){ // identifikátor
+	if(tType == 37){ // identifikátor alebo id
 		return 12;
 	}
 	if(tType == DOLAR){
@@ -39,21 +42,23 @@ int dekoder(int tType){
 ** Funkcia obsahujúca precedenčnú tabuľku
 */
 char precedencna_tabulka(int t_x, int t_y){
-	char tabulka[14][14] = { //| * | / | + | - | < | > | <=| >=| ==| !=| ( | ) | i | $ |
-														 {'>','>','>','>','>','>','>','>','>','>','<','>','<','>'}, // *
-														 {'>','>','>','>','>','>','<','>','<','>','<','>','<','>'}, // /
-														 {'<','<','>','>','>','>','<','>','<','>','<','>','<','>'}, // +
-										 				 {'<','<','>','>','>','>','>','>','X','>','<','>','<','>'}, // -
-														 {'<','<','<','<','>','>','>','>','<','>','<','>','<','>'}, // <
-														 {'<','<','<','<','>','>','>','>','<','>','<','>','<','>'}, // >
-														 {'<','<','<','<','>','>','>','>','<','>','<','>','<','>'}, // <=
-														 {'<','<','<','<','>','>','>','>','<','>','<','>','<','>'}, // >=
-														 {'<','<','<','<','>','>','>','>','X','>','<','>','<','>'}, // ==
-														 {'<','<','<','<','>','>','<','>','<','>','<','>','<','>'}, // !=
-														 {'<','<','<','<','<','<','<','<','<','<','<','=','<','X'}, // (
-														 {'>','>','>','>','>','>','<','>','<','>','X','>','X','>'}, // )
-														 {'>','>','>','>','>','>','<','>','<','>','X','>','X','>'}, // i
-														 {'<','<','<','<','<','<','<','<','<','<','<','X','<','U'}, // $
+	char tabulka[15][15] = { //| * | / | + | - | < | > | <=| >=| ==| !=| ( | ) | i | $ | , |
+														 {'>','>','>','>','>','>','>','>','>','>','<','>','<','>','>'}, // *
+														 {'>','>','>','>','>','>','<','>','<','>','<','>','<','>','>'}, // /
+														 {'<','<','>','>','>','>','<','>','<','>','<','>','<','>','>'}, // +
+										 				 {'<','<','>','>','>','>','>','>','X','>','<','>','<','>','>'}, // -
+														 {'<','<','<','<','>','>','>','>','<','>','<','>','<','>','>'}, // <
+														 {'<','<','<','<','>','>','>','>','<','>','<','>','<','>','>'}, // >
+														 {'<','<','<','<','>','>','>','>','<','>','<','>','<','>','>'}, // <=
+														 {'<','<','<','<','>','>','>','>','<','>','<','>','<','>','>'}, // >=
+														 {'<','<','<','<','>','>','>','>','X','>','<','>','<','>','>'}, // ==
+														 {'<','<','<','<','>','>','<','>','<','>','<','>','<','>','>'}, // !=
+														 {'<','<','<','<','<','<','<','<','<','<','<','=','<','X','<'}, // (
+														 {'>','>','>','>','>','>','<','>','<','>','X','>','X','>','>'}, // )
+														 {'>','>','>','>','>','>','>','>','>','>','<','>','X','>','>'}, // i
+														 {'<','<','<','<','<','<','<','<','<','<','<','U','<','U','<'}, // $
+														 {'<','<','<','<','<','<','<','<','<','<','<','>','<','X','>'}, // ,
+
 													};
 
 	return tabulka[dekoder(t_x)][dekoder(t_y)];
@@ -62,8 +67,8 @@ char precedencna_tabulka(int t_x, int t_y){
 /*
 ** Hlavná funkcia syntaktickej analýzy, simuluje vytváranie derivačného stromu
 */
-int analyza(FILE *fp, char *vystup){
-	char pravidla[14][5] = { // čísla sú z enum štruktúry v scanner.h
+int analyza(FILE *fp, char *vstup, tState *tokenType){
+	char pravidla[16][6] = { // čísla sú z enum štruktúry v scanner.h
 										{E, 4, E, -1, '\0'}, // *
 										{E, 5, E, -1, '\0'}, // /
 										{E, 6, E, -1, '\0'}, // +
@@ -76,19 +81,18 @@ int analyza(FILE *fp, char *vystup){
 										{E, 14, E, -1, '\0'}, // !=
 										{17, E, 16, -1, '\0'}, // zátvorky ()
 										{E, 7, -1, '\0'}, // záporné číslo
-										{37, -1, '\0'}, // identifikátor
+										{37, -1, '\0'}, // cislo alebo identifikátor
+										{E, 24, E, -1, '\0'}, // argumenty funkcie
+										{E, 37, -1, '\0'} // funkcia
 									}; // 60 je $
 	char vyraz[5]; // výraz sa bude porovnávať s tabuľkou
 	STACK zasobnik;
-	char *vstup;
 	char znak; // znak zo vstupu a zo zásobníku
-	tState tokenType; // číslo stavu
 	int i;
 
-	InitS(&zasobnik); // inicializácia zásobniku
 
+	InitS(&zasobnik); // inicializácia zásobniku
 	PushS(&zasobnik, DOLAR); //na vrcholu zásobniku musí byť $
-	vstup = Token(&tokenType, fp); // načíta prvý znak zo vstupu
 
 	do{
 		znak = TopS(&zasobnik);
@@ -96,18 +100,16 @@ int analyza(FILE *fp, char *vystup){
 			znak = TopSecS(&zasobnik);
 		}
 
-		/* pomocné ladiace funkcie
-		PrintS(&zasobnik);
-		printf("S znak = %d\n", znak);
-		printf("vstup = %d\n", tokenType);
-		** *********************** */
+		if(*tokenType == 36 || *tokenType == 42){ // zmeni id na cislo
+			*tokenType = 37;
+		}
 
-		switch(precedencna_tabulka(znak, tokenType)){
+		switch(precedencna_tabulka(znak, *tokenType)){
 
 			case '=':
-				PushS(&zasobnik, tokenType);
-				free(vstup);
-				vstup = Token(&tokenType, fp);
+				PushS(&zasobnik, *tokenType);
+				//FreeToken(vstup);
+				vstup = Token(tokenType, fp);
 				continue;
 
 			case '<':
@@ -115,14 +117,14 @@ int analyza(FILE *fp, char *vystup){
 					PopS(&zasobnik);
 					PushS(&zasobnik, -1);
 					PushS(&zasobnik, E);
-					PushS(&zasobnik, tokenType);
+					PushS(&zasobnik, *tokenType);
 				}
 				else{
 					PushS(&zasobnik, -1); // -1 je <
-					PushS(&zasobnik, tokenType);
+					PushS(&zasobnik, *tokenType);
 				}
-				free(vstup);
-				vstup = Token(&tokenType, fp);
+				//FreeToken(vstup);
+				vstup = Token(tokenType, fp);
 				continue;
 
 			case '>':
@@ -136,12 +138,13 @@ int analyza(FILE *fp, char *vystup){
 				vyraz[i] = '\0';
 
 				/* Porovnáva výraz s pravidlami */
-				for(i = 0; i<=14; i++){
-					if(i == 14){ // nenašla sa zhoda
+				for(i = 0; i<=16; i++){
+					if(i == 16){ // nenašla sa zhoda
 						FreeS(&zasobnik);
 						return -2;
 					}
 					if(strcmp(pravidla[i], vyraz) == 0){ // našla sa zhoda
+						printf("%d, ", i);
 						break;
 					}
 				}
@@ -160,4 +163,11 @@ int analyza(FILE *fp, char *vystup){
 
 	FreeS(&zasobnik);
 	return 0;
+}
+
+void FreeToken(char *vstup){
+	if(vstup != NULL){
+			free(vstup);
+			vstup = NULL;
+	}
 }

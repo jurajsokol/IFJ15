@@ -5,7 +5,13 @@
 * Autor: Juraj Sokokol (xsokol08)
 */
 
-#define E 60 // neterminál
+#ifndef SA_VYRAZOV_H
+#define SA_VYRAZOV_H
+
+#define E 60 // neterminál používaný v s.a. výrazov
 #define DOLAR 61
 
 int analyza();
+void FreeToken(char *vstup);
+
+#endif

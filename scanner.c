@@ -337,8 +337,8 @@ char *Token(tState *retState, FILE *fp)
 					else if(strcmp(tok, "cin") == 0)
 						*retState = S_CIN;
 
-					else if(strcmp(tok, "count") == 0)
-						*retState = S_COUNT;
+					else if(strcmp(tok, "cout") == 0)
+						*retState = S_COUT;
 
 					else if(strcmp(tok, "double") == 0)
 						*retState = S_DOUB;
@@ -360,7 +360,8 @@ char *Token(tState *retState, FILE *fp)
 
 					else if(strcmp(tok, "string") == 0)
 						*retState = S_STR;
-
+					else if(strcmp(tok, "include") == 0)
+						*retState = S_INCL;
 					else 
 						*retState = S_ID;
 

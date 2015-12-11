@@ -120,6 +120,10 @@ void PrintS(STACK *S){
 	printf("\n");
 }
 
+// Uvolní alokovanú pamäť pre zásobník
 void FreeS(STACK *S){
-	free(S->data);
+	if(S->data != NULL){
+		free(S->data);
+		S->data = NULL;
+	}
 }

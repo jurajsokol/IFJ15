@@ -44,7 +44,7 @@ typedef enum
 	// klucove slova
 	S_AUTO,		// 26 auto
 	S_CIN,		// 27 cin
-	S_COUNT,	// 28 count
+	S_COUT,		// 28 cout
 	S_DOUB,		// 29 double
 	S_ELSE,		// 30 else
 	S_FOR,		// 31 for
@@ -69,9 +69,10 @@ typedef enum
 	S_SCOPE,	// 48 ::
 	S_PLUS,		// 49 rozsirenie - unarny +
 	S_MINUS,	// 50 rozsirenie - unarny -
-	S_REAL_PART, //51 
-	S_FLOATEXP,	// 52
+	S_REAL_PART, //51 realna cast
+	S_FLOATEXP,	// 52 desatinny exponent
 	S_EXP_ZERO,	// 53 nula v exponente
+	S_INCL,		// 54 include
 
 } tState;
 
