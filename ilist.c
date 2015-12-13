@@ -5,9 +5,6 @@
 * Autor: Stepan Smolka (xsmolk02)
 */
 
-
-#include <stdio.h>
-#include <malloc.h>
 #include "ilist.h"
 
 void listInit(tListOfInstr *L)
@@ -79,7 +76,7 @@ void listNext(tListOfInstr *L)
     L->active = NULL;
 }
 
-void DeleteFirst (tInstList *L)
+void DeleteFirst (tListOfInstr *L)
 {
  if(L->first != NULL)
    {
@@ -87,7 +84,7 @@ void DeleteFirst (tInstList *L)
 
    if(L->active == L->first) L->active = NULL;
    newItem = L->first;
-   L->first = L->First->nextItem;
+   L->first = L->first->nextItem;
    free(newItem);
    }
 

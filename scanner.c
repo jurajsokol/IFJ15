@@ -360,8 +360,13 @@ char *Token(tState *retState, FILE *fp)
 
 					else if(strcmp(tok, "string") == 0)
 						*retState = S_STR;
+
 					else if(strcmp(tok, "include") == 0)
 						*retState = S_INCL;
+
+					else if(strcmp(tok, "define") == 0)
+						*retState = S_DEF;
+					
 					else 
 						*retState = S_ID;
 

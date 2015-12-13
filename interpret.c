@@ -8,6 +8,8 @@
 #include "libraries.h"
 #include "interpret.h"
 
+
+
 int inter(MainData * data, tListOfInstr * instrList)
 {
     listFirst(instrList);
@@ -50,5 +52,3 @@ int inter(MainData * data, tListOfInstr * instrList)
         }
     }
 }
-
-

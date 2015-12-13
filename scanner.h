@@ -73,6 +73,7 @@ typedef enum
 	S_FLOATEXP,	// 52 desatinny exponent
 	S_EXP_ZERO,	// 53 nula v exponente
 	S_INCL,		// 54 include
+	S_DEF,		// 55 define 
 
 } tState;
 

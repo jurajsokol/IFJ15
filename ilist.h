@@ -1,10 +1,9 @@
 #ifndef ILIST_H_INCLUDED
 #define ILIST_H_INCLUDED
 
-#include stdio.h
-#include stdlib.h
-#include stdarg.h
-#include malloc.h
+#include "libraries.h"
+#include <stdarg.h>
+#include <malloc.h>
 
 #define I_STOP 0  /* Konec vykonavani */
 #define I_BEGIN 1 /* Zacatek vykonavani*/

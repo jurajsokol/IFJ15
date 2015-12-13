@@ -2,7 +2,7 @@
 * Projekt: Interpret jazyka IFJ15
 * Soubor: ial.c
 * Popis: Funkce pro pøedmìt IAL
-* Autor: Stepan Smolka (xsmolk02)
+* Autor: Stepan Smolka (xsmolk02), Juraj Sokol (xsokol08)
 */
 
 
@@ -156,4 +156,50 @@ int kmp(string *text, string *param, double *vys)
         return pom2;
 
     return 0;
+}
+
+int length(char *s){
+  int l = 0;
+
+  while(s[l] != '\0'){
+    l++;
+  }
+  return l;
+}
+
+char *substr(char *s , int i , int n ){
+  char *sub;
+  int j = 0;
+  int k = i + n;
+  if(n != 0){
+    sub = (char*) malloc(sizeof(char)*(n+1));
+    for(; i<k; i++){
+      sub[j] = s[i];
+      j++;
+    }
+    sub[i] = '\0';
+	  return sub;
+  }
+	return "";
+}
+
+char *concat(char *s1 , char *s2 ){
+	char *con;
+	int i = 0;
+	int j = 0;
+	con = (char*) malloc(sizeof(char));
+
+	while(s1[i] != '\0'){
+		con[i] = s1[i];
+		i++;
+		con = realloc(con, sizeof(char)*(i+1));
+	}
+	while(s2[j] != '\0'){
+		con[i] = s2[j];
+		i++;
+		j++;
+		con = realloc(con, sizeof(char)*(i+1));
+	}
+	con[i] = '\0';
+	return con;
 }

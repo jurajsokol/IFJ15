@@ -14,7 +14,7 @@
 ** pomocná funkcia pre hľadanie v precedenčnej tabuľke a v pravidlách
 */
 int dekoder(int tType){
-	if(tType == 3 || tType == 20){ // stav ;, {
+	if(tType == 3 || tType == 20 || tType == 46 || tType == 47){ // stav ;, {
 		return 13;
 	}
 	if(tType == 24){ // ,
@@ -55,12 +55,12 @@ char precedencna_tabulka(int t_x, int t_y){
 														 {'<','<','<','<','>','>','<','>','<','>','<','>','<','>','>'}, // !=
 														 {'<','<','<','<','<','<','<','<','<','<','<','=','<','X','<'}, // (
 														 {'>','>','>','>','>','>','<','>','<','>','X','>','X','>','>'}, // )
-														 {'>','>','>','>','>','>','>','>','>','>','<','>','X','>','>'}, // i
+														 {'>','>','>','>','>','>','>','>','>','>','=','>','X','>','>'}, // i
 														 {'<','<','<','<','<','<','<','<','<','<','<','U','<','U','<'}, // $
 														 {'<','<','<','<','<','<','<','<','<','<','<','>','<','X','>'}, // ,
 
 													};
-
+	printf("Table %d, %d\n", dekoder(t_x), dekoder(t_y));
 	return tabulka[dekoder(t_x)][dekoder(t_y)];
 }
 
@@ -83,15 +83,16 @@ int analyza(FILE *fp, char *vstup, tState *tokenType){
 										{E, 7, -1, '\0'}, // záporné číslo
 										{37, -1, '\0'}, // cislo alebo identifikátor
 										{E, 24, E, -1, '\0'}, // argumenty funkcie
-										{E, 37, -1, '\0'} // funkcia
+										{17, E, 16, 37, -1, '\0'} // funkcia
 									}; // 60 je $
 	char vyraz[5]; // výraz sa bude porovnávať s tabuľkou
 	STACK zasobnik;
 	char znak; // znak zo vstupu a zo zásobníku
 	int i;
 
-
+printf("SAV **************\n");
 	InitS(&zasobnik); // inicializácia zásobniku
+
 	PushS(&zasobnik, DOLAR); //na vrcholu zásobniku musí byť $
 
 	do{
@@ -100,10 +101,19 @@ int analyza(FILE *fp, char *vstup, tState *tokenType){
 			znak = TopSecS(&zasobnik);
 		}
 
+		//if(token T)
+
 		if(*tokenType == 36 || *tokenType == 42){ // zmeni id na cislo
 			*tokenType = 37;
 		}
 
+		/*pomocné ladiace funkcie*/
+		printf("SAV **************\n");
+		PrintS(&zasobnik);
+		printf("SAV znak = %d\n", znak);
+		printf("SAV vstup = %d\n******************\n", *tokenType);
+		/** *********************** */
+		printf("PT: %c\n", precedencna_tabulka(znak, *tokenType));
 		switch(precedencna_tabulka(znak, *tokenType)){
 
 			case '=':
@@ -141,10 +151,9 @@ int analyza(FILE *fp, char *vstup, tState *tokenType){
 				for(i = 0; i<=16; i++){
 					if(i == 16){ // nenašla sa zhoda
 						FreeS(&zasobnik);
-						return -2;
+						SAError();
 					}
 					if(strcmp(pravidla[i], vyraz) == 0){ // našla sa zhoda
-						printf("%d, ", i);
 						break;
 					}
 				}
@@ -154,10 +163,10 @@ int analyza(FILE *fp, char *vstup, tState *tokenType){
 
 			case 'U': // výraz je správny
 				FreeS(&zasobnik);
-				return 1;
+				return 0;
 			case 'X': // chyba
 				FreeS(&zasobnik);
-				return -5;
+				SAError();
 			}
 		}while(1);
 
@@ -170,4 +179,10 @@ void FreeToken(char *vstup){
 			free(vstup);
 			vstup = NULL;
 	}
+}
+
+void SAError()
+{
+	fprintf(stderr, "SYNTAX ERROR\n");
+	exit(2);
 }

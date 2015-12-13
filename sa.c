@@ -25,7 +25,7 @@ int LL_table(int x, int y){
 		{-1, -1, 0, 0, -1, -1, 20, -1, -1, -1, -1, -1, -1, 0, -1, -1, -1, -1, 20, -1, 20, -1, -1, -1, -1, -1}, // EXP
 		{0, 0, -1, -1, -1, 0, 0, 0, 0, 0, 0, -1, -1, -1, 22, -1, -1, -1, -1, 0, -1, -1, -1, -1, -1, -1}, // ELSE
 		{-1, -1, -1, -1, -1, -1, 32, -1, -1, -1, -1, -1, -1, 0, -1, 23, -1, -1, -1, -1, -1, -1, -1, 31, -1, -1}, // CIN
-		{-1, -1, -1, -1, -1, -1, 34, -1, -1, -1, -1, -1, -1, 0, -1, -1, 24, -1, -1, -1, -1, -1, -1, 33, -1, -1}, // COUT
+		{-1, -1, -1, -1, -1, -1, 34, -1, -1, -1, -1, -1, -1, 0, -1, -1, 24, -1, 35, -1, -1, -1, -1, 33, -1, -1}, // COUT
 		{-1, -1, 26, 0, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 0, -1, -1, -1, -1, -1, -1, -1}, // ARGSF
 		{-1, -1, 5, 0, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1}, // ARGS
 		{-1, -1, -1, -1, 27, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1}, // BODY
@@ -43,7 +43,7 @@ int LL_table(int x, int y){
 		case 32: return table[x - 65][7]; // if
 		case 31: return table[x - 65][8]; // for
 		case 27: return table[x - 65][9]; // cin
-		case 28: return table[x - 65][10]; // COUT
+		case 28: return table[x - 65][10]; // cout
 		case 12: return table[x - 65][11]; // =
 		case 18: return table[x - 65][12]; // [
 		case 3: return table[x - 65][13]; // ;
@@ -70,7 +70,7 @@ int LL_table(int x, int y){
 ** Algoritmus je založený na prediktívnej syntaktickej analýze
 */
 int syntakticka_analyza(FILE *fp){
- 	unsigned char pravidla[35][11] = {
+ 	unsigned char pravidla[36][11] = {
 												{EPS, '\0'},
 												{FUNC, BODY, 17, ARG, 16, 36, TYP, '\0'}, //1
 												{33, '\0'}, //2
@@ -99,13 +99,14 @@ int syntakticka_analyza(FILE *fp){
 												{ARGSF, EXP, '\0'}, //25
 												{ARGSF, 24, '\0'}, //26
 												{21, STAT, 20, '\0'}, // 27
-												{INCL, 36, 23, '\0'}, // 28
-												{FUNC, 9, 36, 1, 36, 8, '\0'}, // 29
+												{INCL, 54, 23, '\0'}, // 28
+												{FUNC, 9, 36, 8, '\0'}, // 29
 												{26, '\0'}, // 30
 												{CIN, 42, '\0'}, // 31
 												{CIN, 36, '\0'}, // 32
 												{COUT, 42, '\0'}, // 33
 												{COUT, 36, '\0'}, // 34
+												{COUT, VYRAZ, '\0'}, // 35
 												};
 	STACK zasobnik;
 	unsigned int vrchol_z; // znak z vrcholu zásobníku
@@ -119,7 +120,9 @@ int syntakticka_analyza(FILE *fp){
 	vstup = Token(&tokenType, fp); // prečíta prvý token
 
 	while(1){
+		PrintS(&zasobnik);
 		vrchol_z = TopS(&zasobnik);
+		printf("vstup %d\n", tokenType);
 
 		/* Spracovanie výrazov */
 		if(vrchol_z == VYRAZ){
@@ -128,7 +131,7 @@ int syntakticka_analyza(FILE *fp){
 				continue;
 			}
 			else{
-				return -8;
+				SAError();
 			}
 		}
 
@@ -144,20 +147,20 @@ int syntakticka_analyza(FILE *fp){
 			if(tokenType == 25){ // eof
 				FreeS(&zasobnik);
 				//FreeToken(vstup);
-				printf("\n");
-				return 1;
+				return 0;
 			}
 			if(tokenType == 33) // int
 				PushS(&zasobnik, FUNC);
 			else{
 				FreeS(&zasobnik);
 				//FreeToken(vstup);
-				return -5;
+				SAError();
 			}
 		}
 
 		/* terminály */
 		if(vrchol_z < 64){
+			printf("T vstup %d, vrchol %d\n", tokenType, vrchol_z);
 			if(vrchol_z == tokenType){
 				PopS(&zasobnik);
 				//FreeToken(vstup);
@@ -165,16 +168,18 @@ int syntakticka_analyza(FILE *fp){
 				continue;
 			}
 			else{
+				PrintS(&zasobnik);
+				printf("vstup %d\n", tokenType);
 				FreeS(&zasobnik);
 				//FreeToken(vstup);
-				return -6;
+				SAError();
 			}
 		}
 
 		/* neterminály */
 		if(vrchol_z > 64){
+			printf("LL table %d\n", LL_table(vrchol_z, tokenType));
 			if((pravidlo = LL_table(vrchol_z, tokenType)) != -1 ){
-				printf("%d ,", pravidlo);
 				PopS(&zasobnik); // vyberie neterminál
 				i = 0;
 				while(pravidla[pravidlo][i] != '\0'){ // zapíše pravidlo na zásobník
@@ -185,7 +190,7 @@ int syntakticka_analyza(FILE *fp){
 			else{
 				FreeS(&zasobnik);
 				//FreeToken(vstup);
-				return -7;
+				SAError();
 			}
 		}
 	}

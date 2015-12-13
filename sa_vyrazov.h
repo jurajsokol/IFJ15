@@ -13,5 +13,6 @@
 
 int analyza();
 void FreeToken(char *vstup);
+void SAError();
 
 #endif
